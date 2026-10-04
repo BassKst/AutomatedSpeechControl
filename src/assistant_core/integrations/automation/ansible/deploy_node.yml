@@ -1,0 +1,67 @@
+- hosts: all
+
+  become: true
+
+  vars:
+    remnawave_dir: /opt/remnanode
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - curl
+          - ufw
+        state: present
+
+    - name: Enable docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Create remnawave directory
+      file:
+        path: "{{ remnawave_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create docker compose config
+      template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ remnawave_dir }}/docker-compose.yml"
+
+    - name: Create environment file
+      template:
+        src: templates/node.env.j2
+        dest: "{{ remnawave_dir }}/.env"
+
+    - name: Configure firewall
+      ufw:
+        rule: allow
+        port: "22"
+
+    - name: Configure VPN port
+      ufw:
+        rule: allow
+        port: "443"
+
+    - name: Start remnawave services
+      shell: |
+        docker compose up -d
+      args:
+        chdir: "{{ remnawave_dir }}"
+
+    - name: Check running containers
+      shell: docker ps
+      register: docker_status
+
+    - name: Print docker status
+      debug:
+        var: docker_status.stdout

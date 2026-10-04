@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# Packaging
+*.egg-info/
+build/
+dist/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+cache/
+**/cache/
+
+# Certificates / private keys
+*.key
+*.pem
+*.p12
+*.pfx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/

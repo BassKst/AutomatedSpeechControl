@@ -1,0 +1,6 @@
+[project]
+name = "diplom_speech_helper"
+version = "0.1.0"
+
+[tool.setuptools.packages.find]
+where = ["src"]

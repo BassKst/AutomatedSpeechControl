@@ -1,0 +1,24 @@
+* text=auto
+*.sh text eol=lf
+*.diff text eol=lf
+*.patch text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.flac binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.pkl binary
+*.npy binary

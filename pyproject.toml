@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "automated_speech_control"
+version = "0.1.0"
+description = "Voice-controlled infrastructure assistant: ASR, TTS, NLU and voice biometrics driving Terraform/Ansible deployments."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "BassKst" }]
+keywords = [
+    "speech-recognition",
+    "voice-assistant",
+    "asr",
+    "tts",
+    "nlu",
+    "voice-biometrics",
+    "vosk",
+    "silero",
+    "fastapi",
+    "terraform",
+    "ansible",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
+]
+
+# Тяжёлые ML/аудио-зависимости вынесены в extras
+dependencies = [
+    "python-dotenv>=1.0",
+    "SQLAlchemy>=2.0",
+    "alembic>=1.13",
+    "cryptography>=42.0",
+    "requests>=2.31",
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/BassKst/AutomatedSpeechControl"
+Repository = "https://github.com/BassKst/AutomatedSpeechControl.git"
+Issues = "https://github.com/BassKst/AutomatedSpeechControl/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "black>=24.0",
+]
+
+
+# PyAudio требует PortAudio
+audio = [
+    "vosk>=0.3.45",
+    "PyAudio>=0.2.14",
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12",
+    "librosa>=0.10",
+    "torch>=2.1",
+    "Resemblyzer>=0.1.3",
+    # Resemblyzer использует pkg_resources, удалённый в setuptools 81
+    "setuptools<81",
+]
+
+nlu = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "rapidfuzz>=3.6",
+    "psutil>=5.9",
+]
+
+enrollment = [
+    "pyperclip>=1.8",
+]
+
+scheduler = [
+    "APScheduler>=3.10,<4",
+]
+
+all = [
+    "automated-speech-control[audio,nlu,enrollment,scheduler]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --strict-config"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests", "alembic", "scripts"]
+extend-exclude = ["models", "cache", "certs"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "E501",
+    # кириллица в строках и комментариях
+    "RUF001",
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/versions/*.py" = ["F401", "F841", "W291", "W292"]
+"alembic/env.py" = ["E402"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

@@ -2,5 +2,17 @@
 name = "diplom_speech_helper"
 version = "0.1.0"
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --strict-config"

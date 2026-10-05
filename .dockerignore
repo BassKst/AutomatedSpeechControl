@@ -1,0 +1,46 @@
+# VCS / CI / IDE
+.git
+.gitignore
+.github
+.idea
+.vscode
+
+# Python artifacts
+**/__pycache__
+*.py[cod]
+*.egg-info
+build
+dist
+.pytest_cache
+.coverage
+htmlcov
+
+# Secrets and local config - never bake these into an image
+.env
+**/.env
+!src/common/.env.example
+certs
+
+# Local data, models and caches
+*.db
+*.sqlite
+*.sqlite3
+cache
+**/cache
+models
+logs
+*.log
+
+# Not needed inside the runtime image
+tests
+alembic
+alembic.ini
+AGENTS.md
+CHANGELOG.md
+Dockerfile
+.dockerignore
+docker-compose.yaml
+scripts
+.gitattributes
+.gitignore
+.pre-commit-config.yaml

@@ -1,0 +1,39 @@
+# Локальный запуск NLU-микросервиса (src/nlu_server) в контейнере.
+#
+#   docker compose up --build nlu      # собрать и запустить
+#   docker compose logs -f nlu         # смотреть логи
+#   docker compose down                # остановить
+#
+# Предварительно нужны сертификаты (в образ они не попадают):
+#   python generate_certs.py
+#
+# Ассистент (main.py) намеренно НЕ контейнеризован: ему нужны микрофон,
+# колонки и модель Vosk, поэтому он запускается на хосте и обращается
+# к сервису по https://localhost:8000.
+
+name: automated-speech-control
+
+services:
+  nlu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: asc-nlu:latest
+    container_name: asc-nlu
+    restart: unless-stopped
+    ports:
+      # Порт внутри контейнера зафиксирован (8000) и совпадает с ENV PORT,
+      # наружный порт можно переопределить переменной окружения NLU_HOST_PORT.
+      - "${NLU_HOST_PORT:-8000}:8000"
+    environment:
+      # PROJECT_ROOT задан в Dockerfile: без него common/config.py не найдёт
+      # pyproject.toml, потому что пакеты установлены в site-packages.
+      NLU_MODE: ${NLU_MODE:-nlu}
+      API_HOST: 0.0.0.0
+      PORT: "8000"
+      SAMPLE_RATE: ${SAMPLE_RATE:-16000}
+      TOP_DB: ${TOP_DB:-10}
+    volumes:
+      # Монтируем ровно туда, куда смотрит config.CERT_PATH (BASE_DIR/certs),
+      # чтобы пути совпадали внутри контейнера и на хосте.
+      - ./certs:/app/certs:ro

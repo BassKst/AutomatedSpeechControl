@@ -1,0 +1,27 @@
+# Pre-commit хуки. Установка:  pip install pre-commit && pre-commit install
+# Прогон вручную:             pre-commit run --all-files
+#
+# Подобраны только НЕ модифицирующие хуки plus ruff: они проходят на текущем
+# дереве без переформатирования, поэтому `pre-commit run --all-files` зелёный.
+# Black сюда намеренно не добавлен - код ещё не отформатирован им, и прогон
+# дал бы массовый diff. Это отдельная задача (см. README, roadmap п.4).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Страховка от случайно закоммиченной модели Vosk (~40 МБ) или дампа БД.
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      # Страховка от приватного ключа: certs/ в .gitignore, но защита лишней не бывает.
+      - id: detect-private-key
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: check-case-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff
+        args: ["--fix"]

@@ -1,0 +1,40 @@
+# Нормализация переводов строк.
+#
+# `text=auto`: git хранит в репозитории LF, а в рабочую копию на Windows
+# возвращает CRLF. Индекс проекта уже целиком в LF (проверено через
+# `git ls-files --eol`), поэтому это правило ничего не переписывает - оно лишь
+# делает поведение явным и не зависящим от локального `core.autocrlf`
+# (важно для CI на ubuntu-latest и для контрибьюторов с Linux/macOS).
+* text=auto
+
+# Скрипты для POSIX обязаны оставаться с LF, иначе не запустятся в контейнере.
+*.sh text eol=lf
+
+# Бинарные файлы не должны проходить нормализацию: она их необратимо портит.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+
+# Аудио (записи голосовых профилей, сэмплы для тестов).
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.flac binary
+
+# Архивы и данные.
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.pkl binary
+*.npy binary
+
+# Дампы диффов не должны считываться как текст с нормализацией.
+*.diff text eol=lf
+*.patch text eol=lf

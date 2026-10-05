@@ -224,6 +224,40 @@ Say the wake word followed by a command, for example
 *«ассистент, проверь нагрузку на сервер два в германии»*.
 Say **«стоп»**, **«отмена»** or **«отключись»** to shut down.
 
+### Troubleshooting
+
+**`ModuleNotFoundError: No module named 'resemblyzer'`** (or `webrtcvad`) even
+though `pip install -e ".[all]"` succeeded.
+
+`Resemblyzer` imports `pkg_resources`, which was **removed in setuptools 81+**.
+The package is installed but cannot be imported, and the error misleadingly
+looks like a missing dependency. The `audio` extra therefore pins
+`setuptools<81`. If you hit this in an environment created before that pin:
+
+```bash
+pip install "setuptools<81"
+```
+
+**`ModuleNotFoundError: No module named 'common'` / `'assistant_core'`** when
+running `python main.py`. The packages live under `src/`, so they must be
+installed — `pip install -e ".[all]"` registers them, after which they import
+from anywhere. `python main.py` does not add `src/` to `sys.path` on its own.
+(`pytest` does, via `pythonpath = ["src"]` in `pyproject.toml`, which is why the
+tests pass without an install.)
+
+**The assistant starts but every command fails.** `main.py` is a client: it
+calls the NLU microservice over `https://localhost:8000`. Start that first
+(`python src/nlu_server/server.py` or `docker compose up nlu`) and make sure
+`certs/` exists (`python generate_certs.py`) and that `API_HOST` matches the
+certificate's CN, which is `localhost`.
+
+**ASR fails to load the model.** Models are not committed; run
+`python scripts/download_vosk_model.py`.
+
+**Nobody is recognised.** Voice profiles live in `assistant.db` and are created
+through the enrollment CLI (`python -m voice_biometrics.main`). Until at least
+one profile exists, `VoiceAuthenticator` cannot identify any speaker.
+
 ## Writing your own integration
 
 Create a file in `src/assistant_core/integrations/plugins/` and subclass

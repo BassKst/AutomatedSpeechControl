@@ -31,6 +31,11 @@
 
 ### Fixed
 
+- `pyproject.toml`: extra `audio` теперь фиксирует `setuptools<81`.
+  `Resemblyzer` и `webrtcvad` импортируют `pkg_resources`, удалённый из
+  setuptools 81+, из-за чего `import resemblyzer` падал с
+  `ModuleNotFoundError: No module named 'pkg_resources'`, хотя сам пакет был
+  установлен. Сообщение об ошибке выглядело как отсутствующая зависимость.
 - `Dockerfile`: добавлен `PROJECT_ROOT=/app`. Без него `common/config.py`
   искал `pyproject.toml` обходом вверх от `site-packages/common/`, не находил
   и бросал `ConfigError` при импорте - контейнер не запускался вовсе.

@@ -82,6 +82,13 @@ audio = [
     "librosa>=0.10",
     "torch>=2.1",
     "Resemblyzer>=0.1.3",
+    # Resemblyzer и webrtcvad импортируют pkg_resources, а он удалён из
+    # setuptools 81+. Без этого пина пакет установлен, но `import resemblyzer`
+    # падает с ModuleNotFoundError: No module named 'pkg_resources' - ошибка
+    # выглядит как "библиотека не установлена", хотя причина в setuptools.
+    # Ограничение не конфликтует с build-system requires = ["setuptools>=77"]:
+    # там изолированное окружение сборки, здесь - рантайм.
+    "setuptools<81",
 ]
 
 # Standalone NLU microservice: FastAPI + fuzzy matching + Ollama LLM fallback.

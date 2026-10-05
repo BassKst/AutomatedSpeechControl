@@ -1,12 +1,9 @@
-import json
-
 import pyperclip
 
-from assistant_core.database.models import SessionLocal
 from assistant_core.database.models import User, Role
 from common.encryption_service import encrypt_list, decrypt_list
 from voice_biometrics.db import get_session
-from voice_utils import record_and_build_embedding, test_embedding
+from voice_biometrics.voice_utils import record_and_build_embedding, test_embedding
 
 #
 # ОТДЕЛЬНЫЙ МОДУЛЬ ДЛЯ СОЗДАНИЯ РОЛЕЙ И ПОЛЬЗОВАТЕЛЕЙ

@@ -2,9 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.python-version
 
 # Virtual environments
 .venv/
+.venv*/
 venv/
 env/
 
@@ -19,8 +21,10 @@ env/
 
 # Packaging
 *.egg-info/
+*.egg
 build/
 dist/
+.tox/
 
 # Databases
 *.db
@@ -32,10 +36,21 @@ cache/
 **/cache/
 
 # Certificates / private keys
+# Весь каталог certs/ генерируется локально командой `python generate_certs.py`,
+# поэтому в репозитории не хранится ни ключ, ни сертификат.
+certs/
 *.key
 *.pem
 *.p12
 *.pfx
+*.crt
+*.cer
+*.der
+
+# ML / acoustic models
+# Модели Vosk весят десятки мегабайт и скачиваются отдельным скриптом:
+#   python scripts/download_vosk_model.py
+models/
 
 # OS
 .DS_Store
@@ -45,6 +60,9 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+.ruff_cache/
+# mypy пока не подключён; правило оставлено на будущее, чтобы кэш не попал в коммит.
+.mypy_cache/
 
 # Logs
 *.log

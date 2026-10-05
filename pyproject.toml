@@ -1,12 +1,111 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+
 [project]
-name = "diplom_speech_helper"
+name = "automated_speech_control"
 version = "0.1.0"
+description = "Voice-controlled infrastructure assistant: ASR, TTS, NLU and voice biometrics driving Terraform/Ansible deployments."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "BassKst" }]
+keywords = [
+    "speech-recognition",
+    "voice-assistant",
+    "asr",
+    "tts",
+    "nlu",
+    "voice-biometrics",
+    "vosk",
+    "silero",
+    "fastapi",
+    "terraform",
+    "ansible",
+]
+# Намеренно без classifier'а "License :: OSI Approved :: MIT License":
+# setuptools>=77 запрещает совмещать SPDX-строку в `license` с лицензионным
+# классификатором и падает при сборке.
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
+]
+
+# Core runtime dependencies only: configuration, database, migrations,
+# encryption and the NLU HTTP client. The heavy ML / audio / web stacks are
+# declared as extras below, so the core package and the test suite install
+# quickly without torch, vosk or librosa.
+dependencies = [
+    "python-dotenv>=1.0",
+    "SQLAlchemy>=2.0",
+    "alembic>=1.13",
+    "cryptography>=42.0",
+    "requests>=2.31",
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+# ВАЖНО: эта таблица должна стоять ПОСЛЕ массива `dependencies`. Если открыть
+# её раньше, TOML отнесёт `dependencies` к `project.urls`, и setuptools упадёт
+# с "invalid pyproject.toml config: project.urls.dependencies must be string".
+[project.urls]
+Homepage = "https://github.com/BassKst/AutomatedSpeechControl"
+Repository = "https://github.com/BassKst/AutomatedSpeechControl.git"
+Issues = "https://github.com/BassKst/AutomatedSpeechControl/issues"
+Changelog = "https://github.com/BassKst/AutomatedSpeechControl/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "ruff>=0.6",
+    "black>=24.0",
 ]
 
+
+# Local microphone/speaker pipeline: Vosk ASR, Silero TTS, biometric embeddings.
+# NOTE: PyAudio requires PortAudio headers - see the README prerequisites section.
+audio = [
+    "vosk>=0.3.45",
+    "PyAudio>=0.2.14",
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12",
+    "librosa>=0.10",
+    "torch>=2.1",
+    "Resemblyzer>=0.1.3",
+]
+
+# Standalone NLU microservice: FastAPI + fuzzy matching + Ollama LLM fallback.
+nlu = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "rapidfuzz>=3.6",
+    "psutil>=5.9",
+]
+
+# Interactive voice-enrollment CLI (src/voice_biometrics).
+enrollment = [
+    "pyperclip>=1.8",
+]
+
+# common/scheduler.py - APScheduler-backed task scheduling.
+scheduler = [
+    "APScheduler>=3.10,<4",
+]
+
+# Everything needed to run the full stack locally.
+all = [
+    "automated-speech-control[audio,nlu,enrollment,scheduler]",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -16,3 +115,42 @@ minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra --strict-markers --strict-config"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests", "alembic", "scripts"]
+extend-exclude = ["models", "cache", "certs"]
+
+[tool.ruff.lint]
+# Correctness-focused rule set: pyflakes, pycodestyle, bugbear, comprehensions,
+# simplify and ruff-specific checks.
+#
+# Deliberately NOT enabled yet:
+#   I   (import sorting) and UP (pyupgrade) - would reformat every file; these
+#       belong in a dedicated `style:` commit, not mixed with feature work.
+#   BLE / LOG / TRY / PLW - flag real design debt (blind `except Exception`,
+#       root-logger calls, subprocess without check) that must be fixed
+#       deliberately rather than suppressed. See the README roadmap.
+select = ["E", "W", "F", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "E501",  # line length is Black's responsibility
+    # This codebase is intentionally Russian-language (user-facing strings, logs and
+    # docstrings). RUF001/002/003 flag every Cyrillic character that has a Latin
+    # look-alike - ~150 hits of pure noise that would mask genuine findings.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Alembic revision templates keep `op`/`sa` imports for hand-written migrations,
+# and generated revisions are historical records that must not be edited.
+"alembic/versions/*.py" = ["F401", "F841", "W291", "W292"]
+# env.py appends to sys.path before importing project code, so its imports cannot
+# sit at the top of the file. Removing the sys.path hack is tracked separately.
+"alembic/env.py" = ["E402"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

@@ -23,5 +23,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.10
     hooks:
-      - id: ruff
+      # id `ruff-check`, а не `ruff`: последнее в новых версиях ruff-pre-commit
+      # оставлено как legacy-алиас (и отдельно есть `ruff-format` для форматтера).
+      - id: ruff-check
         args: ["--fix"]

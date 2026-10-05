@@ -4,14 +4,13 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from typing import Callable, Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Union
 import re
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.executors.asyncio import AsyncIOExecutor
 from apscheduler.job import Job
-from sqlalchemy.exc import IntegrityError
 
 # --- ИЗМЕНЕНИЕ: Импортируем классы триггеров напрямую ---
 from apscheduler.triggers.cron import CronTrigger
@@ -39,7 +38,7 @@ class TaskScheduler:
             executors = {'default': AsyncIOExecutor()}
             job_defaults = {
                 'coalesce': True,
-                'misfire_grace_time': int(60 * 60 * 24 * 7), # неделя
+                'misfire_grace_time': (60 * 60 * 24 * 7), # неделя
                 'max_instances': 1,
             }
             self.scheduler = AsyncIOScheduler(
@@ -195,7 +194,8 @@ class TaskScheduler:
 
     async def get_job_next_runs(self, job_id: str, limit: int = 5) -> List[datetime]:
         job = self.get_job(job_id)
-        if not job: return []
+        if not job:
+            return []
 
         next_runs = []
         current_time = datetime.now(job.trigger.timezone)

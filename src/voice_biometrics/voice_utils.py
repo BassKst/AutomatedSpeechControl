@@ -44,7 +44,7 @@ def record_phrase(index):
 
 
 def get_embedding(path):
-    wav, sr = librosa.load(path, sr=SAMPLE_RATE)
+    wav, _sr = librosa.load(path, sr=SAMPLE_RATE)
     # Исправлен баг: раньше тут дважды вызывался embed_utterance(wav)
     embedding = encoder.embed_utterance(wav)
     return embedding

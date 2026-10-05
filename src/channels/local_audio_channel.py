@@ -1,4 +1,4 @@
-import common.logger_config
+import common.logger_config  # noqa: F401 - импорт ради побочного эффекта: настройка корневого логгера
 import queue
 
 import threading

@@ -3,13 +3,12 @@ import sys
 import json
 import queue
 import logging
-from typing import List, Generator
+from typing import Generator, List, Optional
 from resemblyzer import VoiceEncoder
 
 import pyaudio
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
-from assistant_core.database.models import User
 from common.config import SAMPLE_RATE
 
 logger = logging.getLogger(__name__)
@@ -19,7 +18,7 @@ SetLogLevel(-1)
 
 
 class ASREngine:
-    def __init__(self, model_path: str, vocabulary: List = None):
+    def __init__(self, model_path: str, vocabulary: Optional[List[str]] = None):
         self.model_path = model_path
         self.vocabulary = vocabulary
 

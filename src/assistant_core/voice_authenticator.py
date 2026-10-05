@@ -56,7 +56,7 @@ class VoiceAuthenticator:
         best_user = None
         best_score = 0.0
 
-        for user_id, (user, stored_emb) in self._embeddings_cache.items():
+        for user, stored_emb in self._embeddings_cache.values():
             score = 1 - cosine(stored_emb, emb)
 
             if score > best_score:
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     if user_obj:
         print(f"Система распознала '{user_obj.username}'")
     else:
-        print(f"Голос не распознан.")
+        print("Голос не распознан.")
 
     print(f"Лучший Similarity Score: {score:.3f} (Порог: 0.800)")
 

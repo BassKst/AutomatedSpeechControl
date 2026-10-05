@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import ClassVar
 
 
 class ColorFormatter(logging.Formatter):
@@ -11,7 +12,7 @@ class ColorFormatter(logging.Formatter):
 
     FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-    FORMATS = {
+    FORMATS: ClassVar[dict[int, str]] = {
         logging.DEBUG: WHITE + FORMAT + RESET,
         logging.INFO: WHITE + FORMAT + RESET,
         logging.WARNING: YELLOW + FORMAT + RESET,

@@ -97,7 +97,7 @@ if __name__ == "__main__":
     )
 
     print("--- Тестирование модуля парсинга логов ---")
-    for i, raw_log in enumerate(test_logs, 1):
+    for raw_log in test_logs:
         print(f"\n Входящий сырой лог (фрагмент):\n   {raw_log}...")
 
         diagnosis = parser.analyze_error_log(raw_log)

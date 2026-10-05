@@ -42,13 +42,17 @@ class IntegrationManager:
                 module = importlib.import_module(full_module_name)
 
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, BaseIntegration) and obj is not BaseIntegration:
-                        if obj.__module__ == full_module_name:
-                            try:
-                                plugin_instance = obj()
-                                self.register(plugin_instance)
-                            except Exception as e:
-                                logger.error(f"Не удалось инициализировать плагин {name} в {module_name}: {e}")
+                    is_local_plugin = (
+                        issubclass(obj, BaseIntegration)
+                        and obj is not BaseIntegration
+                        and obj.__module__ == full_module_name
+                    )
+                    if is_local_plugin:
+                        try:
+                            plugin_instance = obj()
+                            self.register(plugin_instance)
+                        except Exception as e:
+                            logger.error(f"Не удалось инициализировать плагин {name} в {module_name}: {e}")
 
             except ImportError as e:
                 logger.error(f"Ошибка импорта в плагине {module_name}. Детали: {e}")
@@ -95,6 +99,6 @@ class IntegrationManager:
             # Выполняем саму логику
             result = integration.execute(entities, context)
             return result
-        except Exception as e:
+        except Exception:
             logger.exception("Ошибка внутри модуля интеграции")
             return {"status": "error", "message": "Произошла критическая ошибка при выполнении скрипта."}

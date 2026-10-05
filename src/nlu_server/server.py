@@ -1,6 +1,6 @@
 import logging
 
-import common.logger_config
+import common.logger_config  # noqa: F401 - импорт ради побочного эффекта: настройка корневого логгера
 import asyncio
 
 from fastapi import FastAPI

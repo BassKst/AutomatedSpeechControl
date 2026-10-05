@@ -1,4 +1,3 @@
-import time
 
 from common import encryption_service
 from common.config import BASE_DIR

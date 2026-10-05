@@ -45,6 +45,12 @@ def generate_self_signed_cert():
             encryption_algorithm=serialization.NoEncryption()
         ))
 
+    # Ключ записывается незашифрованным, поэтому ограничиваем права сразу:
+    # без этого файл получал umask процесса (обычно 0644 - читается всеми).
+    # На POSIX это даёт полноценные 0600; на Windows os.chmod управляет только
+    # битом "только чтение", и реальную защиту обеспечивают ACL каталога.
+    os.chmod("certs/server.key", 0o600)
+
     with open("certs/server.crt", "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 

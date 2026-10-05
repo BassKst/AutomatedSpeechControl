@@ -2,11 +2,11 @@ import json
 import logging
 import re
 import subprocess
+import sys
 
 import psutil
 import requests
 import time
-import signal
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +49,19 @@ class OLLAMAEngine:
     # ---------- server control ----------
 
     def _start_server(self):
+        # CREATE_NEW_PROCESS_GROUP существует только в Windows: на Linux/macOS
+        # обращение к нему падало AttributeError, и NLU-сервис не стартовал.
+        # На POSIX-системах отдельная группа процессов не нужна - дерево
+        # процессов Ollama и так завершается через psutil в shutdown().
+        popen_kwargs = {}
+        if sys.platform == "win32":
+            popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+
         self.proc = subprocess.Popen(
             ["ollama", "serve"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+            **popen_kwargs
         )
 
     def _wait_until_ready(self, timeout=15):

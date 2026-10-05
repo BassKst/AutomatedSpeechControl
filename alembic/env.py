@@ -5,8 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from common.config import BASE_DIR
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -26,9 +24,23 @@ import sys
 sys.path.append(os.getcwd()) # Чтобы Python увидел папку assistant_core
 
 from assistant_core import Base
-from pathlib import Path
+from assistant_core.database.models import DATABASE_URL
 
 target_metadata = Base.metadata
+
+# URL базы подставляется один раз и действует для обоих режимов миграций.
+#
+# Раньше он задавался только внутри run_migrations_offline(), а online-ветка -
+# именно её использует обычный `alembic upgrade head` - брала значение
+# `sqlite:///assistant.db` из alembic.ini, то есть путь относительно текущей
+# рабочей директории. Запуск не из корня проекта молча применял миграции к
+# другому файлу БД. Импорт DATABASE_URL из models.py гарантирует, что alembic
+# и приложение физически не могут разойтись.
+#
+# Экранирование '%' обязательно: set_main_option интерпретирует значение через
+# ConfigParser, и одиночный '%' в пути (например в профиле Windows) ломал бы
+# разбор конфигурации.
+config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -48,8 +60,6 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    DATABASE_URL = f"sqlite:///{BASE_DIR}/assistant.db"
-    config.set_main_option("sqlalchemy.url", DATABASE_URL)
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,

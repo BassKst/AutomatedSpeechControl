@@ -1,0 +1,21 @@
+# NLU-микросервис. Перед запуском: python generate_certs.py
+name: automated-speech-control
+
+services:
+  nlu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: asc-nlu:latest
+    container_name: asc-nlu
+    restart: unless-stopped
+    ports:
+      - "${NLU_HOST_PORT:-8000}:8000"
+    environment:
+      NLU_MODE: ${NLU_MODE:-nlu}
+      API_HOST: 0.0.0.0
+      PORT: "8000"
+      SAMPLE_RATE: ${SAMPLE_RATE:-16000}
+      TOP_DB: ${TOP_DB:-10}
+    volumes:
+      - ./certs:/app/certs:ro

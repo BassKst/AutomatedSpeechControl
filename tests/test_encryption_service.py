@@ -21,6 +21,7 @@ from common.encryption_service import (
     encrypt_data,
     encrypt_json,
     encrypt_list,
+    generate_fernet_key,
     generate_secret_key,
 )
 
@@ -127,16 +128,44 @@ def test_generate_secret_key_is_unique():
 
 
 def test_generate_secret_key_is_not_a_fernet_key():
-    """ХАРАКТЕРИЗАЦИЯ ТЕКУЩЕГО ПОВЕДЕНИЯ (не одобрение).
+    """Контракт: ``generate_secret_key`` - это секрет внешней системы, не Fernet.
 
-    ``generate_secret_key()`` возвращает 64 hex-символа, тогда как
-    ``ENCRYPTION_KEY`` обязан быть 32 url-safe base64-байтами. То есть
-    результат этой функции НЕЛЬЗЯ напрямую положить в ENCRYPTION_KEY -
-    ``Fernet(...)`` упадёт с ValueError.
+    Функция возвращает 64 hex-символа и используется в ``deploy_node`` как
+    ``SECRET_KEY`` VPN-узла (XRay/Remnawave через ``node.env.j2``).
+    ``ENCRYPTION_KEY`` требует 32 url-safe base64-байта, поэтому результат
+    намеренно НЕ совместим с ``Fernet(...)`` - для ключа шифрования есть
+    :func:`generate_fernet_key`.
 
-    Тест зафиксирован, чтобы правка функции не прошла незамеченной.
-    Устранение самого расхождения требует отдельного решения и здесь
-    намеренно не выполняется.
+    Тест фиксирует разделение двух назначений, чтобы случайная правка
+    ``generate_secret_key`` не сломала формат секрета деплоя.
     """
     with pytest.raises(ValueError):
         Fernet(generate_secret_key().encode())
+
+
+# --- generate_fernet_key -------------------------------------------------------
+def test_generate_fernet_key_is_accepted_by_fernet():
+    """Результат можно напрямую положить в ENCRYPTION_KEY."""
+    key = generate_fernet_key()
+
+    # Не должно бросать исключение.
+    cipher = Fernet(key.encode())
+    assert cipher.decrypt(cipher.encrypt(b"payload")) == b"payload"
+
+
+def test_generate_fernet_key_format():
+    key = generate_fernet_key()
+
+    # 32 url-safe base64-байта -> ровно 44 символа с хвостовым '='.
+    assert len(key) == 44
+    assert key.endswith("=")
+    assert all(c in string.ascii_letters + string.digits + "-_=" for c in key)
+
+
+def test_generate_fernet_key_is_unique():
+    assert generate_fernet_key() != generate_fernet_key()
+
+
+def test_generate_fernet_key_differs_from_secret_key():
+    """Два назначения - два разных формата, пересечения быть не должно."""
+    assert len(generate_fernet_key()) != len(generate_secret_key())

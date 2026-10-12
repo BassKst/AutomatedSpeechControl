@@ -12,6 +12,11 @@ result back by synthesised speech.
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ---
+<p align="center">
+  <b>English</b> | <a href="README.ru.md">Русский</a>
+</p>
+
+
 
 ## Highlights
 

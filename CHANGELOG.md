@@ -67,7 +67,7 @@
   NLU-микросервис на FastAPI (rapidfuzz + Ollama), плагин-фреймворк
   интеграций с RBAC, миграции Alembic, автоматизация деплоя
   на Terraform (Hetzner Cloud) и Ansible.
-- Набор тестов на независимых от железа модулях и `AGENTS.md`.
+- Набор тестов на независимых от железа модулях.
 
 [Unreleased]: https://github.com/BassKst/AutomatedSpeechControl/commits/main
 [0.1.0]: https://github.com/BassKst/AutomatedSpeechControl/releases/tag/v0.1.0

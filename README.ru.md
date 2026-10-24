@@ -33,52 +33,17 @@
 
 ## Схема прохождения запроса
 
-```mermaid
-flowchart LR
-    A([Голос]) --> B[Vosk ASR]
-    B --> C{Wake word?}
-    C -- да --> D[VoiceAuthenticator<br/><i>кто говорит?</i>]
-    D --> E[NLU-микросервис<br/><i>что сделать?</i>]
-    E --> F{RBAC<br/><i>разрешено?</i>}
-    F -- да --> G[Плагин интеграции]
-    G -- ошибка --> H[LogParser<br/><i>разбор сбоя</i>]
-    G -- успех --> I[Silero TTS]
-    H --> I
-    F -- нет --> I
-    I --> J[(ExecutionLog<br/>аудит в БД)]
-```
+<img width="1004" height="622" alt="image" src="https://github.com/user-attachments/assets/defc7be6-5ce1-48eb-ad0f-1ee9f17bae44" />
+<img width="1004" height="855" alt="image" src="https://github.com/user-attachments/assets/8fdb5b40-732e-46e7-9933-458bb79ec942" />
+<img width="1004" height="691" alt="image" src="https://github.com/user-attachments/assets/a7a30d62-414c-4cbd-a7e1-4cdf90588f74" />
 
 Длительные сценарии автоматизации отправляются в отдельный `ThreadPoolExecutor`, благодаря чему ассистент продолжает слушать команды и не зависает во время работы Terraform/Ansible.
 
 ## Архитектура системы
 
-```
-+-------------------------------------------------------------------+
-|                        Входящие адаптеры                          |
-|   LocalAudioChannel (микрофон/динамики)  TelegramChannel (каркас) |
-+---------------------------------+---------------------------------+
-                                  |  IAssistantChannel  (порт)
-                                  |  listen/reply/interrupt/close
-+---------------------------------v---------------------------------+
-|                     AssistantApplication  (ядро)                  |
-|                                                                   |
-|  1. VoiceAuthenticator   ID диктора -> пользователь + access_level|
-|  2. nlu_client           HTTPS -> nlu_server (интент, сущности)   |
-|  3. IntegrationManager   реестр плагинов + контроль прав RBAC     |
-|  4. LogParser            сырой лог -> краткий понятный диагноз    |
-|  5. db_service           журнал аудита в ExecutionLog             |
-+------------+-----------------------------------+------------------+
-             |                                   |
-+------------v--------------+   +----------------v------------------+
-|     Исходящие адаптеры    |   |       Интеграции (плагины)        |
-|  ASREngine      (Vosk)    |   |  check_load    deploy_node        |
-|  TTSEngine      (Silero)  |   +----------------+------------------+
-|  encryption_service       |                    | subprocess
-|  audio_utils    (librosa) |   +----------------v------------------+
-+---------------------------+   | Terraform (Hetzner) -> Ansible    |
-                                | -> VPN-узел (Remnawave + Docker)  |
-                                +-----------------------------------+
-```
+<img width="1004" height="543" alt="image" src="https://github.com/user-attachments/assets/77cf27d0-d5a9-4bbe-8843-372fea968463" />
+
+<img width="1004" height="1279" alt="image" src="https://github.com/user-attachments/assets/eb23de72-c547-4942-9dcc-19c94733b033" />
 
 ### Карта модулей
 

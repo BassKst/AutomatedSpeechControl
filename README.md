@@ -70,33 +70,10 @@ assistant keeps listening while Terraform works.
 
 ## Architecture
 
-```
-+-------------------------------------------------------------------+
-|                          Driving adapters                         |
-|   LocalAudioChannel (mic + speakers)    TelegramChannel (scaffold)|
-+---------------------------------+---------------------------------+
-                                  |  IAssistantChannel  (port)
-                                  |  listen/reply/interrupt/close
-+---------------------------------v---------------------------------+
-|                     AssistantApplication  (core)                  |
-|                                                                   |
-|  1. VoiceAuthenticator   speaker ID -> user + access_level        |
-|  2. nlu_client           HTTPS -> nlu_server (intent, entities)   |
-|  3. IntegrationManager   plugin registry + RBAC gate              |
-|  4. LogParser            raw log -> short spoken diagnosis        |
-|  5. db_service           ExecutionLog audit trail                 |
-+------------+-----------------------------------+------------------+
-             |                                   |
-+------------v--------------+   +----------------v------------------+
-|      Driven adapters      |   |      Integrations (plugins)       |
-|  ASREngine      (Vosk)    |   |  check_load    deploy_node        |
-|  TTSEngine      (Silero)  |   +----------------+------------------+
-|  encryption_service       |                    | subprocess
-|  audio_utils    (librosa) |   +----------------v------------------+
-+---------------------------+   | Terraform (Hetzner) -> Ansible    |
-                                | -> VPN node (Remnawave + Docker)  |
-                                +-----------------------------------+
-```
+<img width="1004" height="543" alt="image" src="https://github.com/user-attachments/assets/77cf27d0-d5a9-4bbe-8843-372fea968463" />
+
+<img width="1004" height="1279" alt="image" src="https://github.com/user-attachments/assets/eb23de72-c547-4942-9dcc-19c94733b033" />
+
 
 ### Module map
 

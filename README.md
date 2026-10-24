@@ -50,20 +50,10 @@ result back by synthesised speech.
 
 ## How a request flows
 
-```mermaid
-flowchart LR
-    A([Speech]) --> B[Vosk ASR]
-    B --> C{Wake word?}
-    C -- yes --> D[VoiceAuthenticator<br/><i>who is speaking?</i>]
-    D --> E[NLU service<br/><i>what to do?</i>]
-    E --> F{RBAC<br/><i>allowed?</i>}
-    F -- yes --> G[Integration plugin]
-    G -- error --> H[LogParser<br/><i>explain failure</i>]
-    G -- ok --> I[Silero TTS]
-    H --> I
-    F -- no --> I
-    I --> J[(ExecutionLog<br/>audit trail)]
-```
+<img width="1004" height="622" alt="image" src="https://github.com/user-attachments/assets/defc7be6-5ce1-48eb-ad0f-1ee9f17bae44" />
+<img width="1004" height="855" alt="image" src="https://github.com/user-attachments/assets/8fdb5b40-732e-46e7-9933-458bb79ec942" />
+<img width="1004" height="691" alt="image" src="https://github.com/user-attachments/assets/a7a30d62-414c-4cbd-a7e1-4cdf90588f74" />
+
 
 Long-running integrations are dispatched to a `ThreadPoolExecutor` so the
 assistant keeps listening while Terraform works.
